@@ -1,22 +1,11 @@
-import axios from 'axios';
-import { useContext, useEffect, useState } from 'react';
-import { AuthContext } from '../../providers/AuthProvider';
+import Lottie from 'lottie-react';
+import carAnimation from '../../assets/carAnimation.json';
+import useBooking from '../../hooks/useBooking';
 import BookingRow from './BookingRow';
 
 const Booking = () => {
-  const { user } = useContext(AuthContext);
+  const { data: bookings, isLoading, refetch } = useBooking();
 
-  const [bookings, setBookings] = useState([]);
-  useEffect(() => {
-    axios
-      .get(`http://localhost:3000/booking?email=${user?.email}`, {
-        withCredentials: true,
-      })
-      .then((res) => {
-        console.log(res.data);
-        setBookings(res.data);
-      });
-  }, [user?.email]);
   const handleDelete = (id) => {
     const agree = confirm(`Are you sure you want to delete?`);
     if (agree) {
@@ -25,8 +14,7 @@ const Booking = () => {
       })
         .then((res) => {
           console.log(res);
-          const remaining = bookings.filter((booking) => booking._id != id);
-          setBookings(remaining);
+          refetch();
         })
         .catch((err) => {
           console.log(err.message);
@@ -34,22 +22,25 @@ const Booking = () => {
     }
   };
   const handleStatus = (id) => {
-    fetch(`http://localhost:3000/booking/${id}`, {
-      method: 'PATCH',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ status: 'approved' }),
-    })
+    fetch(
+      `http://localhost:3000/booking/${id}`,
+      {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ status: 'approved' }),
+      },
+      { withCredentials: true }
+    )
       .then((response) => {
         return response.json();
       })
       .then((data) => {
         console.log(data);
         if (data.modifiedCount > 0) {
-          const remaining = bookings.filter((booking) => booking._id != id);
           const updatedOne = bookings.find((booking) => booking._id === id);
           updatedOne.status = 'approved';
-          const updateBookings = [updatedOne, ...remaining];
-          setBookings(updateBookings);
+          console.log(updatedOne);
+          refetch();
         }
       });
   };
@@ -72,14 +63,20 @@ const Booking = () => {
           </tr>
         </thead>
         <tbody>
-          {bookings?.map((booking) => (
-            <BookingRow
-              key={booking._id}
-              booking={booking}
-              handleDelete={handleDelete}
-              handleStatus={handleStatus}
-            />
-          ))}
+          {isLoading ? (
+            <div className=''>
+              <Lottie animationData={carAnimation} />
+            </div>
+          ) : (
+            bookings?.map((booking) => (
+              <BookingRow
+                key={booking._id}
+                booking={booking}
+                handleDelete={handleDelete}
+                handleStatus={handleStatus}
+              />
+            ))
+          )}
         </tbody>
       </table>
     </div>

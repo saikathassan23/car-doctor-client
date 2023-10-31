@@ -1,11 +1,13 @@
 /* eslint-disable react/no-unescaped-entities */
-import axios from 'axios';
 import { useContext } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import login_bg from '../../../assets/images/login/login.svg';
+import useAxiosSecure from '../../../hooks/useAxiosSecure';
 import { AuthContext } from '../../../providers/AuthProvider';
 const Login = () => {
   const { loginUser } = useContext(AuthContext);
+  const axiosSecure = useAxiosSecure();
+
   const navigate = useNavigate();
   const location = useLocation();
   const handleLogin = (e) => {
@@ -19,11 +21,13 @@ const Login = () => {
         console.log('login -- ', result.user);
 
         // access token generate
-        const user = {
-          email: result.user.email,
-        };
-        axios
-          .post(`http://localhost:3000/jwt`, user, { withCredentials: true })
+        // shifted this to authProvider because authProvider
+        // keeps tracks of the users info about login and logout
+        // const user = {
+        //   email: result.user.email,
+        // };
+        axiosSecure
+          .post(`/jwt`, { email: result.user.email })
           .then((response) => {
             console.log(response.data);
           })
@@ -55,6 +59,7 @@ const Login = () => {
                 placeholder='email'
                 name='email'
                 className='input input-bordered'
+                defaultValue={'abc@bank.com'}
                 required
               />
             </div>
@@ -66,6 +71,7 @@ const Login = () => {
                 type='password'
                 placeholder='password'
                 name='password'
+                defaultValue={'123456'}
                 className='input input-bordered'
                 required
               />

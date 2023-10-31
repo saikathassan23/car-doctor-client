@@ -1,12 +1,13 @@
-import axios from 'axios';
 import { useContext } from 'react';
 import { useLoaderData } from 'react-router-dom';
+import useAxiosSecure from '../../hooks/useAxiosSecure';
 import { AuthContext } from '../../providers/AuthProvider';
 
 const BookService = () => {
   const service = useLoaderData();
   const { price, title, _id, img } = service;
   const { user } = useContext(AuthContext);
+  const axiosSecure = useAxiosSecure();
   const handleOrder = (e) => {
     e.preventDefault();
     const form = e.target;
@@ -28,15 +29,24 @@ const BookService = () => {
     };
     console.log(order);
     // post request
-    axios
-      .post('http://localhost:3000/booking', order, {withCredentials: true})
+    axiosSecure
+      .post('/booking', order)
       .then(function (response) {
-        console.log('form bookservice booking --- ', response);
+        console.log('form book service booked --- ', response.data);
         form.reset();
       })
       .catch(function (error) {
-        console.log(error);
+        console.log('error in the booking request --', error.message);
       });
+    // axios
+    //   .post('http://localhost:3000/booking', order, { withCredentials: true })
+    //   .then(function (response) {
+    //     console.log('form book service booking --- ', response.data);
+    //     form.reset();
+    //   })
+    //   .catch(function (error) {
+    //     console.log('error in the booking request --', error.message);
+    //   });
   };
   return (
     <div className='flex items-center justify-center bg-[#F3F3F3]'>

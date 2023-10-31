@@ -1,19 +1,21 @@
-import { useQuery } from '@tanstack/react-query';
+import useServices from '../../hooks/useServices';
 import ServiceCard from './ServiceCard';
 
 const Services = () => {
-  const { data, isLoading } = useQuery({
-    queryKey: ['services'],
-    queryFn: async () => {
-      const response = await fetch('http://localhost:3000/services', {
-        credentials: 'include',
-      });
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
-    },
-  });
+  // const [data2, setData2] = useState([]);
+  // const [loader, setLoader] = useState(true);
+  // useEffect(() => {
+  //   setLoader(true);
+  //   axios
+  //     .get('http://localhost:3000/services', { withCredentials: true })
+  //     .then((res) => {
+  //       console.log(res.data);
+  //       setData2(res.data);
+  //       setLoader(false);
+  //     })
+  //     .catch((err) => console.log(err));
+  // }, []);
+  const { isLoading, data } = useServices();
   if (isLoading) {
     return <div className='h-screen text-center'>loading...</div>;
   } else {
